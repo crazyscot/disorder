@@ -182,6 +182,10 @@ const char *column_who(const struct queue_entry *q,
                        const char *data);
 const char *column_namepart(const struct queue_entry *q,
                             const char *data);
+const char *column_namepart_track(const struct queue_entry *q,
+                            const char *data);
+const char *column_namepart_dir(const struct queue_entry *q,
+                            const char *data);
 const char *column_length(const struct queue_entry *q,
                           const char *data);
 struct tabtype *ql_tabtype(struct queuelike *ql);

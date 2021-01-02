@@ -72,9 +72,9 @@ static void added_init(struct queuelike attribute((unused)) *ql) {
 
 /** @brief Columns for the new tracks list */
 static const struct queue_column added_columns[] = {
-  { "Artist", column_namepart, "artist", COL_EXPAND|COL_ELLIPSIZE },
-  { "Album",  column_namepart, "album",  COL_EXPAND|COL_ELLIPSIZE },
-  { "Title",  column_namepart, "title",  COL_EXPAND|COL_ELLIPSIZE },
+  { "Artist", column_namepart_dir, "artist", COL_EXPAND|COL_ELLIPSIZE },
+  { "Album",  column_namepart_dir, "album",  COL_EXPAND|COL_ELLIPSIZE },
+  { "Title",  column_namepart_track, "title",  COL_EXPAND|COL_ELLIPSIZE },
   { "Length", column_length,   0,        COL_RIGHT }
 };
 

@@ -102,6 +102,18 @@ const char *column_namepart(const struct queue_entry *q,
   return namepart(q->track, "display", data);
 }
 
+const char *column_namepart_track(const struct queue_entry *q,
+                            const char *data) {
+  const char *raw = column_namepart(q, data);
+  return trackname_transform("track", raw, "display");
+}
+
+const char *column_namepart_dir(const struct queue_entry *q,
+                            const char *data) {
+  const char *raw = column_namepart(q, data);
+  return trackname_transform("dir", raw, "display");
+}
+
 /** @brief Format the length column */
 const char *column_length(const struct queue_entry *q,
                           const char attribute((unused)) *data) {
