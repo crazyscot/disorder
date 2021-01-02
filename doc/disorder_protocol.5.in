@@ -206,9 +206,11 @@ Used by
 as a keepalive measure.
 This command does not require authentication.
 .TP
-.B part \fITRACK\fR \fICONTEXT\fI \fIPART\fR
+.B part \fITRACK\fR \fICONTEXT\fI \fIPART\fR \fR[\fITRANSFORM\fR]
 Get a track name part.
 Returns an empty string if a name part cannot be constructed.
+If \fiTRANSFORM\fR is non-zero, also applies any relevant transforms (see
+\fBdisorder_config\fR(5)).
 .IP
 .I CONTEXT
 is one of

@@ -1118,12 +1118,24 @@ static int c_part(struct conn *c,
 		  int attribute((unused)) nvec) {
   const char *track;
 
+  int do_transform = 0;
+  if (nvec > 3)
+      do_transform = atoi(vec[3]);
+
   if(!(track = trackdb_resolve(vec[0]))) {
     sink_writes(ev_writer_sink(c->w), "550 cannot resolve track\n");
     return 1;
   }
-  sink_printf(ev_writer_sink(c->w), "252 %s\n",
-	      quoteutf8(trackdb_getpart(track, vec[1], vec[2])));
+  if(do_transform) {
+    const char *type = "dir";
+    if (!strcmp(vec[2], "title"))
+      type = "track";
+    sink_printf(ev_writer_sink(c->w), "252 %s\n",
+        quoteutf8(trackname_transform(type, trackdb_getpart(track, vec[1], vec[2]), vec[1])));
+  } else {
+    sink_printf(ev_writer_sink(c->w), "252 %s\n",
+	    quoteutf8(trackdb_getpart(track, vec[1], vec[2])));
+  }
   return 1;
 }
 
@@ -1954,7 +1966,7 @@ static const struct server_command {
   { "moveafter",      1, INT_MAX, c_moveafter,      RIGHT_MOVE__MASK },
   { "new",            0, 1,       c_new,            RIGHT_READ },
   { "nop",            0, 0,       c_nop,            0 },
-  { "part",           3, 3,       c_part,           RIGHT_READ },
+  { "part",           3, 4,       c_part,           RIGHT_READ },
   { "pause",          0, 0,       c_pause,          RIGHT_PAUSE },
   { "play",           1, 1,       c_play,           RIGHT_PLAY },
   { "playafter",      2, INT_MAX, c_playafter,      RIGHT_PLAY },
