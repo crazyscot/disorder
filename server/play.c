@@ -46,6 +46,8 @@ static int speaker_fd = -1;
 /** @brief Set when shutting down */
 static int shutting_down;
 
+static void hls_playing(struct queue_entry *q);
+
 /* Speaker ------------------------------------------------------------------ */
 
 /** @brief Called when speaker process terminates
@@ -607,6 +609,7 @@ void play(ev_source *ev) {
     eventlog("playing", playing->track,
 	     playing->submitter ? playing->submitter : (const char *)0,
 	     (const char *)0);
+    hls_playing(playing);
     /* Maybe add a random track. */
     add_random_track(ev);
     /* If there is another track in the queue prepare it now.  This could
@@ -840,6 +843,29 @@ void rtp_request_cancel(const struct sockaddr_storage *sa) {
   sm.u.address = *sa;
   speaker_send(speaker_fd, &sm);
 }
+
+/* HLS streaming support ---------------------------------------------------- */
+static void hls_playing(struct queue_entry *q) {
+  char *url = 0, *starttime = 0;
+  if (!config->hls_enable)
+    return;
+  if (!config->hls_baseurl) {
+    disorder_info("hls_enable set, hls_baseurl is required");
+    return;
+  }
+  const char *bare_track = track_rootless(q->track);
+  if (bare_track == 0)
+    return; // don't support scratches for now
+  byte_asprintf(&url, "%s%s", config->hls_baseurl, bare_track);
+  if (!url || !*url)
+    return;
+  byte_asprintf(&starttime, "%lu", q->played);
+  eventlog("hls_playout", starttime, url, (char*)0);
+  xfree(url);
+  xfree(starttime);
+  // TODO: refactor so we can have a log sent on connect()
+}
+
 
 /*
 Local Variables:
