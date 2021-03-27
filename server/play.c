@@ -863,7 +863,6 @@ static void hls_playing(struct queue_entry *q) {
   eventlog("hls_playout", starttime, url, (char*)0);
   xfree(url);
   xfree(starttime);
-  // TODO: refactor so we can have a log sent on connect()
 }
 
 
