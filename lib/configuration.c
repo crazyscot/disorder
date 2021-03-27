@@ -1083,6 +1083,8 @@ static const struct conf conf[] = {
   { C(default_rights),   &type_rights,           validate_any },
   { C(device),           &type_string,           validate_any },
   { C(history),          &type_integer,          validate_positive },
+  { C(hls_baseurl),      &type_string,           validate_url },
+  { C(hls_enable),       &type_boolean,          validate_any },
 #if !_WIN32
   { C(home),             &type_string,           validate_isabspath },
 #endif

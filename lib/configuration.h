@@ -320,6 +320,12 @@ struct config {
   /** @brief RTP mode */
   const char *rtp_mode;
 
+  /** @brief HLS support master switch */
+  int hls_enable;
+
+  /** @brief HLS base URLs, one per collection root */
+  char* hls_baseurl;
+
   /* derived values: */
   int nparts;				/* number of distinct name parts */
   char **parts;				/* name part list  */
