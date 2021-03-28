@@ -1027,17 +1027,19 @@ static int c_log(struct conn *c,
     sink_printf(ev_writer_sink(c->w), "%"PRIxMAX" state playing\n",
 		  (uintmax_t)now);
     if (config->hls_enable) {
-      char *url = 0, *starttime = 0;
+      char *url = 0, *starttime = 0, *encoded_track = 0;
       const char *bare_track = track_rootless(playing->track);
       if (bare_track != 0)
       {
-        byte_asprintf(&url, "%s%s", config->hls_baseurl, bare_track);
+        encoded_track = urlencodestring(bare_track);
+        byte_asprintf(&url, "%s%s", config->hls_baseurl, encoded_track);
         byte_asprintf(&starttime, "%lu", playing->played);
         sink_printf(ev_writer_sink(c->w), "%" PRIxMAX " hls_playout %s %s\n",
-          (uintmax_t)now, starttime, quoteutf8(url));
+          (uintmax_t)now, starttime, url);
       } // else do nothing; scratches are too ephemeral to worry about here
       xfree(url);
       xfree(starttime);
+      xfree(encoded_track);
     }
   }
   /* Initial volume */
