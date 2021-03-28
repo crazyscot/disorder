@@ -18,9 +18,14 @@ You would then install the CGI as follows:
 
 If you want to use HLS streaming mode you'll need to include a line like this in the
 VirtualHost block. If you have multiple collections, don't forget to add multiple
-hls_urlmap definitions.
+hls_urlmap definitions in the server configuration.
 
     Alias /mp3/ /home/mp3/
+
+If you want HLS to serve scratches you will need another line:
+    Alias /scratch/ /usr/share/disorder/
+and you will need to add a server configuration line like this:
+    hls_urlmap /usr/share/disorder http://your.server/scratch
 
 Local Variables:
 mode:text

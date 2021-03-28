@@ -454,10 +454,13 @@ the size of the list until it is next modified.
 .B hls_enable yes\fR|\fBno
 If set, HLS playout is enabled.
 .TP
-.B hls_url \fICOLLECTION\fR \fIURL\fR
+.B hls_urlmap \fICOLLECTION\fR \fIURL\fR
 Provides the base URL for all tracks found in the given \fICOLLECTION\fR.
 There should be one such declaration for every collection, if you want HLS
 to work properly.
+Additionally, if you want to serve scratches over HLS, you should add a further
+entry as if /usr/share/disorder (or wherever you keep your scratch noises)
+was a collection.
 .TP
 .B listen \fR[\fIFAMILY\fR] \fR[\fIHOST\fR] \fISERVICE\fR
 Listen for connections on the address specified by \fIHOST\fR and port

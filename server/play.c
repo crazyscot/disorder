@@ -845,19 +845,49 @@ void rtp_request_cancel(const struct sockaddr_storage *sa) {
 }
 
 /* HLS streaming support ---------------------------------------------------- */
+
+/** @brief Searches for a collection with a URL mapping that matches a given track.
+ * This is used for scratches.
+ * @param track The track of interest
+ * @param baseurl (Output) If a matching collection was found, this is the base
+ * URL for that collection.
+ * @return If a matching collection was found, the track name relative to the
+ * collection base URL. (If no collection found, NULL.)
+ */
+static const char* hls_find_scratch(const char*track, const char**baseurl) {
+  for (int i=0; i<config->hls_urlmap.n; i++) {
+    const char *key = config->hls_urlmap.m[i].key;
+    int len = strlen(key);
+    if (0==strncmp(track, key, len)) {
+      *baseurl = config->hls_urlmap.m[i].url;
+      return &track[len];
+    }
+  }
+  return 0;
+}
+
 static void hls_playing(struct queue_entry *q) {
-  char *url = 0, *starttime = 0, *encoded_track = 0;
   if (!config->hls_enable)
     return;
   const char *track_root = find_track_root(q->track);
-  const char *baseurl = urlmap_for(&config->hls_urlmap, track_root);
-  if (!baseurl) {
-    disorder_error(0, "No mapped URL for %s", track_root);
-    return;
+  const char *baseurl = 0, *bare_track = 0;
+  if (!bare_track) {
+    bare_track = hls_find_scratch(q->track, &baseurl);
+    if (!bare_track) {
+      disorder_error(0, "could not find scratch mapping for %s", q->track);
+      return;
+    }
+    // else continue on..
+  } else {
+    baseurl = urlmap_for(&config->hls_urlmap, track_root);
+    if (!baseurl) {
+      disorder_error(0, "No mapped URL for %s", track_root);
+      return;
+    }
+    bare_track = track_rootless(q->track); // this is not alloc'd
   }
-  const char *bare_track = track_rootless(q->track); // this is not alloc'd
-  if (bare_track == 0)
-    return; // don't support scratches for now
+
+  char *url = 0, *starttime = 0, *encoded_track = 0;
   encoded_track = urlencodestring(bare_track); // This is malloc'd
   byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
   if (url && *url) {
