@@ -252,6 +252,16 @@ track information (see below).
 .IP
 If the response is \fB259\fR then nothing is playing.
 .TP
+.B playing-hls
+Report the HLS playout information for the current playing track, if available.
+.IP
+If the response is \fB252\fR then the rest of the response line consists of the
+play start time (see \fBTIMESTAMPS\fR below) and the URL.
+.IP
+If the response is \fB259\fR then nothing is playing.
+.IP
+If the response is \fB550\fR then HLS is not available.
+.TP
 .B playlist-delete \fIPLAYLIST\fR
 Delete a playlist.
 Requires permission to modify that playlist and the \fBplay\fR right.

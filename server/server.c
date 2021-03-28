@@ -535,6 +535,30 @@ static int c_playing(struct conn *c,
   return 1;				/* completed */
 }
 
+static int c_playing_hls(struct conn *c,
+		     char attribute((unused)) **vec,
+		     int attribute((unused)) nvec) {
+  char *url = 0, *encoded_track = 0;
+  if (!config->hls_enable || !config->hls_baseurl) {
+    sink_printf(ev_writer_sink(c->w), "550 HLS not enabled\n");
+  }
+  if(playing) {
+    const char* bare_track = track_rootless(playing->track);
+    if (bare_track == 0) {
+      // can't join a scratch part-way through
+      sink_printf(ev_writer_sink(c->w), "259 nothing playing\n");
+    } else {
+      encoded_track = urlencodestring(bare_track);
+      byte_asprintf(&url, "%s%s", config->hls_baseurl, encoded_track);
+      sink_printf(ev_writer_sink(c->w), "252 %lu %s\n", playing->played, url);
+    }
+  } else
+    sink_printf(ev_writer_sink(c->w), "259 nothing playing\n");
+  xfree(url);
+  xfree(encoded_track);
+  return 1;				/* completed */
+}
+
 static const char *connection_host(struct conn *c) {
   union {
     struct sockaddr sa;
@@ -1988,6 +2012,7 @@ static const struct server_command {
   { "play",           1, 1,       c_play,           RIGHT_PLAY },
   { "playafter",      2, INT_MAX, c_playafter,      RIGHT_PLAY },
   { "playing",        0, 0,       c_playing,        RIGHT_READ },
+  { "playing-hls",    0, 0,       c_playing_hls,    RIGHT_READ },
   { "playlist-delete",    1, 1,   c_playlist_delete,    RIGHT_PLAY },
   { "playlist-get",       1, 1,   c_playlist_get,       RIGHT_READ },
   { "playlist-get-share", 1, 1,   c_playlist_get_share, RIGHT_READ },

@@ -850,7 +850,7 @@ static void hls_playing(struct queue_entry *q) {
   if (!config->hls_enable)
     return;
   if (!config->hls_baseurl) {
-    disorder_info("hls_enable set, hls_baseurl is required");
+    disorder_info("hls_enable on, but hls_baseurl must be set for this to work");
     return;
   }
   const char *bare_track = track_rootless(q->track); // this is not alloc'd
