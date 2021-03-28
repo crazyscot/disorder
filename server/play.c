@@ -849,17 +849,19 @@ static void hls_playing(struct queue_entry *q) {
   char *url = 0, *starttime = 0, *encoded_track = 0;
   if (!config->hls_enable)
     return;
-  if (!config->hls_baseurl) {
-    disorder_info("hls_enable on, but hls_baseurl must be set for this to work");
+  const char *track_root = find_track_root(q->track);
+  const char *baseurl = urlmap_for(&config->hls_urlmap, track_root);
+  if (!baseurl) {
+    disorder_error(0, "No mapped URL for %s", track_root);
     return;
   }
   const char *bare_track = track_rootless(q->track); // this is not alloc'd
   if (bare_track == 0)
     return; // don't support scratches for now
   encoded_track = urlencodestring(bare_track); // This is malloc'd
-  byte_asprintf(&url, "%s%s", config->hls_baseurl, encoded_track);
+  byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
   if (url && *url) {
-    byte_asprintf(&starttime, "%lu", q->played);
+    byte_xasprintf(&starttime, "%lu", q->played);
     eventlog("hls_playout", starttime, url, (char*)0);
   }
   xfree(url);

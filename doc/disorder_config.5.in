@@ -451,6 +451,14 @@ failed tracks and scratches).
 If this is changed during the lifetime of the server, it won't actually reduce
 the size of the list until it is next modified.
 .TP
+.B hls_enable yes\fR|\fBno
+If set, HLS playout is enabled.
+.TP
+.B hls_url \fICOLLECTION\fR \fIURL\fR
+Provides the base URL for all tracks found in the given \fICOLLECTION\fR.
+There should be one such declaration for every collection, if you want HLS
+to work properly.
+.TP
 .B listen \fR[\fIFAMILY\fR] \fR[\fIHOST\fR] \fISERVICE\fR
 Listen for connections on the address specified by \fIHOST\fR and port
 specified by \fISERVICE\fR.

@@ -98,6 +98,16 @@ struct transformlist {
   struct transform *t;
 };
 
+/** @brief A mapping from collection base to URL base */
+struct urlmap {
+  char *key;
+  char *url;
+};
+struct urlmap_list {
+  int n;
+  struct urlmap *m;
+};
+
 /** @brief System configuration */
 struct config {
   /* server config */
@@ -324,7 +334,7 @@ struct config {
   int hls_enable;
 
   /** @brief HLS base URLs, one per collection root */
-  char* hls_baseurl;
+  struct urlmap_list hls_urlmap;
 
   /* derived values: */
   int nparts;				/* number of distinct name parts */
@@ -362,6 +372,9 @@ extern char *configfile, *userconfigfile;
 extern int config_per_user;
 
 extern const struct uaudio *const *config_uaudio_apis;
+
+/** @brief Returns the URL base for the given collection, or NULL if not found */
+const char* urlmap_for(struct urlmap_list *map, const char* collection);
 
 #endif /* CONFIGURATION_H */
 

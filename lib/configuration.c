@@ -487,6 +487,24 @@ static int set_transform(const struct config_state *cs,
   return 0;
 }
 
+static int set_urlmap(const struct config_state *cs,
+		      const struct conf *whoami,
+		      int nvec, char **vec) {
+  struct urlmap_list *uml = ADDRESS(cs->config, struct urlmap_list);
+  if(nvec != 2) {
+    disorder_error(0, "%s:%d: '%s' requires two arguments",
+		   cs->path, cs->line, whoami->name);
+    return -1;
+  }
+
+  uml->m = xrealloc(uml->m, (uml->n+1) * sizeof(struct urlmap));
+  struct urlmap *new1 = & uml->m[uml->n];
+  ++uml->n;
+  new1->key = xstrdup(vec[0]); // unvalidated
+  new1->url = xstrdup(vec[1]);
+  return 0;
+}
+
 static int set_rights(const struct config_state *cs,
 		      const struct conf *whoami,
 		      int nvec, char **vec) {
@@ -607,6 +625,21 @@ static void free_netaddress(struct config *c,
   xfree(na->address);
 }
 
+static void free_urlmap_list(struct config *c,
+			       const struct conf *whoami) {
+  struct urlmap_list *ul = ADDRESS(c, struct urlmap_list);
+  for (int n=0; n<ul->n; ++n) {
+    struct urlmap *map = &ul->m[n];
+    if (map) {
+      xfree(map->url);
+      xfree(map->key);
+    }
+  }
+  xfree(ul->m);
+  ul->m = 0;
+}
+
+
 /* configuration types */
 
 static const struct conftype
@@ -621,7 +654,8 @@ static const struct conftype
   type_namepart = { set_namepart, free_namepartlist },
   type_transform = { set_transform, free_transformlist },
   type_netaddress = { set_netaddress, free_netaddress },
-  type_rights = { set_rights, free_string };
+  type_rights = { set_rights, free_string },
+  type_hls_url = { set_urlmap, free_urlmap_list };
 
 /* specific validation routine */
 
@@ -864,6 +898,20 @@ static int validate_url(const struct config_state attribute((unused)) *cs,
   return 0;
 }
 
+/** @brief Validate a URL map entry
+ * @param cs Configuration state
+ * @param nvec Length of (proposed) new value
+ * @param vec Elements of new value
+ * @return 0 on success, non-0 on error
+ *
+ * Rather cursory.
+ */
+static int validate_urlmap(const struct config_state attribute((unused)) *cs,
+			int attribute((unused)) nvec,
+			char **vec) {
+  return validate_url(cs, 0, &vec[1]);
+}
+
 /** @brief Validate an alias pattern
  * @param cs Configuration state
  * @param nvec Length of (proposed) new value
@@ -1083,8 +1131,8 @@ static const struct conf conf[] = {
   { C(default_rights),   &type_rights,           validate_any },
   { C(device),           &type_string,           validate_any },
   { C(history),          &type_integer,          validate_positive },
-  { C(hls_baseurl),      &type_string,           validate_url },
   { C(hls_enable),       &type_boolean,          validate_any },
+  { C(hls_urlmap),       &type_hls_url,          validate_urlmap },
 #if !_WIN32
   { C(home),             &type_string,           validate_isabspath },
 #endif
@@ -1790,6 +1838,15 @@ int config_verify(void) {
       ++fails;
     }
   return fails;
+}
+
+/** @brief Returns the URL base for the given collection, or NULL if not found */
+const char* urlmap_for(struct urlmap_list *map, const char* collection) {
+  for (int i=0; i<map->n; ++i) {
+    if (0==strncmp(collection, map->m[i].key, strlen(collection)))
+      return map->m[i].url;
+  }
+  return 0;
 }
 
 /*

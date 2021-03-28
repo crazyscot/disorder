@@ -539,17 +539,25 @@ static int c_playing_hls(struct conn *c,
 		     char attribute((unused)) **vec,
 		     int attribute((unused)) nvec) {
   char *url = 0, *encoded_track = 0;
-  if (!config->hls_enable || !config->hls_baseurl) {
+  if (!config->hls_enable) {
     sink_printf(ev_writer_sink(c->w), "550 HLS not enabled\n");
+    return 1;
   }
   if(playing) {
-    const char* bare_track = track_rootless(playing->track);
+    const char *track_root = find_track_root(playing->track);
+    const char *bare_track = track_rootless(playing->track);
+    const char *baseurl = urlmap_for(&config->hls_urlmap, track_root);
+    if (!baseurl) {
+      disorder_error(0, "No mapped URL for %s", track_root);
+      sink_printf(ev_writer_sink(c->w), "550 HLS configuration error\n");
+      return 1;
+    }
     if (bare_track == 0) {
       // can't join a scratch part-way through
       sink_printf(ev_writer_sink(c->w), "259 nothing playing\n");
     } else {
       encoded_track = urlencodestring(bare_track);
-      byte_asprintf(&url, "%s%s", config->hls_baseurl, encoded_track);
+      byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
       sink_printf(ev_writer_sink(c->w), "252 %lu %s\n", playing->played, url);
     }
   } else
@@ -1052,12 +1060,15 @@ static int c_log(struct conn *c,
 		  (uintmax_t)now);
     if (config->hls_enable) {
       char *url = 0, *starttime = 0, *encoded_track = 0;
+      const char *track_root = find_track_root(playing->track);
       const char *bare_track = track_rootless(playing->track);
-      if (bare_track != 0)
-      {
+      const char *baseurl = urlmap_for(&config->hls_urlmap, track_root);
+      if (!baseurl) {
+        disorder_error(0, "No mapped URL for %s", track_root);
+      } else if (bare_track != 0) {
         encoded_track = urlencodestring(bare_track);
-        byte_asprintf(&url, "%s%s", config->hls_baseurl, encoded_track);
-        byte_asprintf(&starttime, "%lu", playing->played);
+        byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
+        byte_xasprintf(&starttime, "%lu", playing->played);
         sink_printf(ev_writer_sink(c->w), "%" PRIxMAX " hls_playout %s %s\n",
           (uintmax_t)now, starttime, url);
       } // else do nothing; scratches are too ephemeral to worry about here

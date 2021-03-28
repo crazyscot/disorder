@@ -17,7 +17,8 @@ You would then install the CGI as follows:
     install -m 755 clients/disorder.cgi /home/jukebox/public_html/index.cgi
 
 If you want to use HLS streaming mode you'll need to include a line like this in the
-VirtualHost block. (N.B. Only one collection is supported for now.)
+VirtualHost block. If you have multiple collections, don't forget to add multiple
+hls_urlmap definitions.
 
     Alias /mp3/ /home/mp3/
 
