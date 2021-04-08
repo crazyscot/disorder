@@ -558,7 +558,7 @@ static int c_playing_hls(struct conn *c,
     } else {
       encoded_track = urlencodestring(bare_track);
       byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
-      sink_printf(ev_writer_sink(c->w), "252 %lu %s\n", playing->played, url);
+      sink_printf(ev_writer_sink(c->w), "252 %lu %s\n", playing->sofar, url);
     }
   } else
     sink_printf(ev_writer_sink(c->w), "259 nothing playing\n");
@@ -1059,7 +1059,7 @@ static int c_log(struct conn *c,
     sink_printf(ev_writer_sink(c->w), "%"PRIxMAX" state playing\n",
 		  (uintmax_t)now);
     if (config->hls_enable) {
-      char *url = 0, *starttime = 0, *encoded_track = 0;
+      char *url = 0, *sofar= 0, *encoded_track = 0;
       const char *track_root = find_track_root(playing->track);
       const char *bare_track = track_rootless(playing->track);
       const char *baseurl = urlmap_for(&config->hls_urlmap, track_root);
@@ -1068,12 +1068,12 @@ static int c_log(struct conn *c,
       } else if (bare_track != 0) {
         encoded_track = urlencodestring(bare_track);
         byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
-        byte_xasprintf(&starttime, "%lu", playing->played);
+        byte_xasprintf(&sofar, "%lu", playing->sofar);
         sink_printf(ev_writer_sink(c->w), "%" PRIxMAX " hls_playout %s %s\n",
-          (uintmax_t)now, starttime, url);
+          (uintmax_t)now, sofar, url);
       } // else do nothing; scratches are too ephemeral to worry about here
       xfree(url);
-      xfree(starttime);
+      xfree(sofar);
       xfree(encoded_track);
     }
   }

@@ -887,15 +887,15 @@ static void hls_playing(struct queue_entry *q) {
     bare_track = track_rootless(q->track); // this is not alloc'd
   }
 
-  char *url = 0, *starttime = 0, *encoded_track = 0;
+  char *url = 0, *sofar= 0, *encoded_track = 0;
   encoded_track = urlencodestring(bare_track); // This is malloc'd
   byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
   if (url && *url) {
-    byte_xasprintf(&starttime, "%lu", q->played);
-    eventlog("hls_playout", starttime, url, (char*)0);
+    byte_xasprintf(&sofar, "%lu", q->sofar);
+    eventlog("hls_playout", sofar, url, (char*)0);
   }
   xfree(url);
-  xfree(starttime);
+  xfree(sofar);
   xfree(encoded_track);
 }
 

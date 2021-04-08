@@ -256,7 +256,7 @@ If the response is \fB259\fR then nothing is playing.
 Report the HLS playout information for the current playing track, if available.
 .IP
 If the response is \fB252\fR then the rest of the response line consists of the
-play start time (see \fBTIMESTAMPS\fR below) and the URL.
+elapsed time in the track (in seconds) and its URL.
 .IP
 If the response is \fB259\fR then nothing is playing.
 .IP
@@ -693,11 +693,11 @@ Completed playing \fITRACK\fR with an error status
 .B global_pref \fIPREF\fR [\fIVALUE\fR]
 A global preference was set or unset.
 .TP
-.B hls_playout \fISTART_TIMESTAMP\fR \fIURL\fR
+.B hls_playout \fIELAPSED\fR \fIURL\fR
 (Only sent when HLS is enabled in the server config.)
 Sent when a client connects, or when a subsequent track begins.
 Provides the URL the client can use to stream the track, and
-when the server started playing it (see \fBTIMESTAMPS\fR below).
+the elapsed time (in seconds) since starting to play.
 .TP
 .B moved \fIUSERNAME\fR
 User \fIUSERNAME\fR moved some track(s).
