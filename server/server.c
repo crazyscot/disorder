@@ -558,7 +558,11 @@ static int c_playing_hls(struct conn *c,
     } else {
       encoded_track = urlencodestring(bare_track);
       byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
-      sink_printf(ev_writer_sink(c->w), "252 %lu %s\n", playing->sofar, url);
+      const char *title, *artist, *album;
+      title = trackname_transform("track", trackdb_getpart(playing->track, "display", "title"), "display");
+      artist= trackname_transform("dir", trackdb_getpart(playing->track, "display", "artist"), "display");
+      album = trackname_transform("dir", trackdb_getpart(playing->track, "display", "album"), "display");
+      sink_printf(ev_writer_sink(c->w), "252 %lu %s %s %s %s\n", playing->sofar, url, quoteutf8(title), quoteutf8(artist), quoteutf8(album));
     }
   } else
     sink_printf(ev_writer_sink(c->w), "259 nothing playing\n");
@@ -1069,8 +1073,12 @@ static int c_log(struct conn *c,
         encoded_track = urlencodestring(bare_track);
         byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
         byte_xasprintf(&sofar, "%lu", playing->sofar);
-        sink_printf(ev_writer_sink(c->w), "%" PRIxMAX " hls_playout %s %s\n",
-          (uintmax_t)now, sofar, url);
+        const char *title, *artist, *album;
+        title = trackname_transform("track", trackdb_getpart(playing->track, "display", "title"), "display");
+        artist= trackname_transform("dir", trackdb_getpart(playing->track, "display", "artist"), "display");
+        album = trackname_transform("dir", trackdb_getpart(playing->track, "display", "album"), "display");
+        sink_printf(ev_writer_sink(c->w), "%" PRIxMAX " hls_playout %s %s %s %s %s\n",
+          (uintmax_t)now, sofar, url, quoteutf8(title), quoteutf8(artist), quoteutf8(album));
       } // else do nothing; scratches are too ephemeral to worry about here
       xfree(url);
       xfree(sofar);

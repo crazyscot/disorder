@@ -892,7 +892,11 @@ static void hls_playing(struct queue_entry *q) {
   byte_xasprintf(&url, "%s%s", baseurl, encoded_track);
   if (url && *url) {
     byte_xasprintf(&sofar, "%lu", q->sofar);
-    eventlog("hls_playout", sofar, url, (char*)0);
+    const char *title, *artist, *album;
+    title = trackname_transform("track", trackdb_getpart(q->track, "display", "title"), "display");
+    artist= trackname_transform("dir", trackdb_getpart(q->track, "display", "artist"), "display");
+    album = trackname_transform("dir", trackdb_getpart(q->track, "display", "album"), "display");
+    eventlog("hls_playout", sofar, url, title, artist, album, (char*)0);
   }
   xfree(url);
   xfree(sofar);
