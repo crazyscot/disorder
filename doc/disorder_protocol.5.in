@@ -256,8 +256,9 @@ If the response is \fB259\fR then nothing is playing.
 Report the HLS playout information for the current playing track, if available.
 .IP
 If the response is \fB252\fR then the rest of the response line consists of the
-elapsed time in the track (in seconds), its URL, title, artist and album (quoted
-as necessary).
+elapsed time in the track (in seconds);
+the pause status (1 paused, 0 playing);
+its URL, title, artist and album (quoted as necessary).
 .IP
 If the response is \fB259\fR then nothing is playing.
 .IP

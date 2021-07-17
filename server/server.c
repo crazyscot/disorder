@@ -562,7 +562,7 @@ static int c_playing_hls(struct conn *c,
       title = trackname_transform("track", trackdb_getpart(playing->track, "display", "title"), "display");
       artist= trackname_transform("dir", trackdb_getpart(playing->track, "display", "artist"), "display");
       album = trackname_transform("dir", trackdb_getpart(playing->track, "display", "album"), "display");
-      sink_printf(ev_writer_sink(c->w), "252 %lu %s %s %s %s\n", playing->sofar, url, quoteutf8(title), quoteutf8(artist), quoteutf8(album));
+      sink_printf(ev_writer_sink(c->w), "252 %lu %u %s %s %s %s\n", playing->sofar, (playing->state == playing_paused ? 1 : 0), url, quoteutf8(title), quoteutf8(artist), quoteutf8(album));
     }
   } else
     sink_printf(ev_writer_sink(c->w), "259 nothing playing\n");
